@@ -5,8 +5,15 @@
 </head>
 <body>
     <div style="display:flex; flex-direction:column">
-        <canvas id="boundary" width="500" height="500" style="border-style:solid"></canvas>
-        <button type="button" onclick="requestAnimationFrame(play)" style="width:100px; margin-top:20px">Start Game</button>
+        <canvas id="boundary" width="500" height="500" style="border-style: solid"></canvas>
+        <div id="start-buttons" style="display:flex; flex-direction:row; align-self:center">
+            <button type="button" onclick="requestAnimationFrame(function(timestamp) { play(10) })" 
+                style="width:100px; margin:20px">Start Game Easy</button>
+            <button type="button" onclick="requestAnimationFrame(function(timestamp) { play(30) })" 
+                style="width:100px; margin:20px">Start Game Medium</button>
+            <button type="button" onclick="requestAnimationFrame(function(timestamp) { play(100) })" 
+                style="width:100px; margin:20px">Start Game Hard</button>
+        </div>
     </div>
     <script>
         const boundary = document.getElementById("boundary");
@@ -28,17 +35,18 @@
             y: 250,
         };
 
-        const fps = 10;
         let now;
         let then = Date.now();
-        const interval = 1000 / fps;
         let delta;
 
         let exitAnimation = false;
 
-        function play() {
+        function play(fps) {
 
-            requestAnimationFrame(play);
+            const interval = 1000 / fps;
+            
+            // rAF must take additional fps argument so set interval based on difficulty
+            requestAnimationFrame(function() { play(fps) });
 
             // Slow down the animation
             now = Date.now();
@@ -63,8 +71,6 @@
                 (function moveSnake() {
                     snake.x += snake.dx;
                     snake.y += snake.dy;
-                    // snake.cells.unshift({x: snake.x, y: snake.y});
-                    // console.log(snake.cells)
                 })();
 
                 // Draw the snake one cell at a time
@@ -131,7 +137,12 @@
         
         // Determine if the snake has hit itself 
         function selfMove() {
-
+            for (let i = 1; i < snake.cells.length; i++) {
+                if (snake.cells[i].x === snake.x && snake.cells[i].y === snake.y) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         document.addEventListener('keydown', function(e) {
@@ -145,12 +156,12 @@
                 snake.dx = cellSize;
                 snake.dy = 0;
             }
-            // vvvv
+            // ^^^^
             else if (e.which === 38 && snake.dy === 0) {
                 snake.dy = - cellSize;
                 snake.dx = 0;
             }
-            // ^^^^
+            // vvvv
             else if (e.which === 40 && snake.dy === 0) {
                 snake.dy = cellSize;
                 snake.dx = 0;
