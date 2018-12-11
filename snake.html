@@ -134,7 +134,7 @@
         
         // Determine if the move just made is out of bounds 
         function outOfBounds() {
-            if (snake.x > boundary.width) {
+            if (snake.x >= boundary.width) {
                 return true;
             } else if (snake.x < 0) {
                 return true;
