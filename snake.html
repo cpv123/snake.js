@@ -1,0 +1,161 @@
+<!DOCTYPE>
+<html>
+<head>
+
+</head>
+<body>
+    <div style="display:flex; flex-direction:column">
+        <canvas id="boundary" width="500" height="500" style="border-style:solid"></canvas>
+        <button type="button" onclick="requestAnimationFrame(play)" style="width:100px; margin-top:20px">Start Game</button>
+    </div>
+    <script>
+        const boundary = document.getElementById("boundary");
+        const context = boundary.getContext('2d');
+        
+        const cellSize = 10;
+
+        let snake = {
+            x: 150,
+            y: 150,
+            dx: cellSize,
+            dy: 0,
+            cells: [],
+            length: 4,   
+        };
+
+        let apple = {
+            x: 250,
+            y: 250,
+        };
+
+        const fps = 10;
+        let now;
+        let then = Date.now();
+        const interval = 1000 / fps;
+        let delta;
+
+        let exitAnimation = false;
+
+        function play() {
+
+            requestAnimationFrame(play);
+
+            // Slow down the animation
+            now = Date.now();
+            delta = now - then;
+            if (delta > interval) {
+
+                if (exitAnimation) {
+                    return;
+                }
+
+                then = now - (delta % interval)
+
+                context.clearRect(0, 0, boundary.width, boundary.height);
+
+                // Draw the apple
+                (function drawApple() {
+                    context.fillStyle = 'red';
+                    context.fillRect(apple.x, apple.y, 10, 10)
+                })();
+
+                // Move the snake
+                (function moveSnake() {
+                    snake.x += snake.dx;
+                    snake.y += snake.dy;
+                    // snake.cells.unshift({x: snake.x, y: snake.y});
+                    // console.log(snake.cells)
+                })();
+
+                // Draw the snake one cell at a time
+                (function drawSnake() {
+                    const newHead = { x: snake.x, y: snake.y };
+                    snake.cells.unshift(newHead);
+                    if (snake.cells.length > snake.length) {
+                        snake.cells.pop();
+                    }
+                    context.fillStyle = 'green';
+                    snake.cells.forEach(function(cell) {
+                        context.fillRect(cell.x, cell.y, 10, 10);
+                        context.strokeRect(cell.x, cell.y, 10, 10);
+                    })
+                })();
+                
+                (function handleMovement() {
+
+                    // Handle snack eating apple
+                    if (snake.x === apple.x && snake.y === apple.y) {
+                        snake.length++
+                        randomApple();
+                    }
+
+                    // Handle moving into the wall
+                    if (outOfBounds()) {
+                        exitAnimation = true;
+                        alert('Game over: out of bounds');
+                    }
+                    
+                    // Handle moving into itself
+                    if (selfMove()) {
+                        exitAnimation = true;
+                        alert('Game over: snake in the way');
+                    }
+                })();
+            }
+        }
+        
+        // Generate a randomly positioned apple
+        function randomApple() {
+            function randomNumber() {
+                return (Math.floor(Math.random() * 50 )) * cellSize;
+            };
+            apple = {
+                x: randomNumber(),
+                y: randomNumber(),
+            };
+        }
+        
+        // Determine if the move just made is out of bounds 
+        function outOfBounds() {
+            if (snake.x > boundary.width) {
+                return true;
+            } else if (snake.x < 0) {
+                return true;
+            } else if (snake.y > boundary.height) {
+                return true;
+            } else if (snake.y < 0) {
+                return true;
+            }
+            return false;
+        }
+        
+        // Determine if the snake has hit itself 
+        function selfMove() {
+
+        }
+
+        document.addEventListener('keydown', function(e) {
+            // <---
+            if (e.which === 37 && snake.dx === 0) {
+                snake.dx = - cellSize;
+                snake.dy = 0;
+            }
+            // --->
+            else if (e.which === 39 && snake.dx === 0) {
+                snake.dx = cellSize;
+                snake.dy = 0;
+            }
+            // vvvv
+            else if (e.which === 38 && snake.dy === 0) {
+                snake.dy = - cellSize;
+                snake.dx = 0;
+            }
+            // ^^^^
+            else if (e.which === 40 && snake.dy === 0) {
+                snake.dy = cellSize;
+                snake.dx = 0;
+            }
+        })
+    </script>
+</body>
+</html>
