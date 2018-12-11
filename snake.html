@@ -4,7 +4,7 @@
 
 </head>
 <body>
-    <div style="display:flex; flex-direction:column">
+    <div style="display:flex; flex-direction:column; align-items:center">
         <canvas id="boundary" width="500" height="500" style="border-style: solid"></canvas>
         <div id="start-buttons" style="display:flex; flex-direction:row; align-self:center">
             <button type="button" onclick="requestAnimationFrame(function(timestamp) { play(10) })" 
@@ -14,12 +14,16 @@
             <button type="button" onclick="requestAnimationFrame(function(timestamp) { play(100) })" 
                 style="width:100px; margin:20px">Start Game Hard</button>
         </div>
+        <div style="display:flex; flex-direction:row">
+            <h1 style="margin-right:7px">Score:</h1><h1 id="score-number">0</h1>
+        </div>
     </div>
     <script>
         const boundary = document.getElementById("boundary");
         const context = boundary.getContext('2d');
-        
         const cellSize = 10;
+
+        let score = 0;
 
         let snake = {
             x: 150,
@@ -45,7 +49,7 @@
 
             const interval = 1000 / fps;
             
-            // rAF must take additional fps argument so set interval based on difficulty
+            // rAF must take additional fps argument to set interval based on difficulty
             requestAnimationFrame(function() { play(fps) });
 
             // Slow down the animation
@@ -92,22 +96,29 @@
                     // Handle snack eating apple
                     if (snake.x === apple.x && snake.y === apple.y) {
                         snake.length++
+                        incrementScore();
                         randomApple();
                     }
 
                     // Handle moving into the wall
                     if (outOfBounds()) {
                         exitAnimation = true;
-                        alert('Game over: out of bounds');
+                        alert('Game over: out of bounds. You scored ' + score);
                     }
                     
                     // Handle moving into itself
                     if (selfMove()) {
                         exitAnimation = true;
-                        alert('Game over: snake in the way');
+                        alert('Game over: snake in the way. You scored ' + score);
                     }
                 })();
             }
+        }
+        
+        // Increment the score by one
+        function incrementScore() {
+            score++
+            document.getElementById("score-number").innerHTML = score;
         }
         
         // Generate a randomly positioned apple
