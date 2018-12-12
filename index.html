@@ -5,13 +5,14 @@
 </head>
 <body>
     <div style="display:flex; flex-direction:column; align-items:center">
-        <canvas id="boundary" width="500" height="500" style="border-style: solid"></canvas>
+        <canvas id="boundary" width="500" height="500" style="border-style: solid">
+        </canvas>
         <div id="start-buttons" style="display:flex; flex-direction:row; align-self:center">
-            <button type="button" onclick="requestAnimationFrame(function(timestamp) { play(10) })" 
+            <button type="button" onclick="onClickStart(10)" 
                 style="width:100px; margin:20px">Start Game Easy</button>
-            <button type="button" onclick="requestAnimationFrame(function(timestamp) { play(30) })" 
+            <button type="button" onclick="onClickStart(30)" 
                 style="width:100px; margin:20px">Start Game Medium</button>
-            <button type="button" onclick="requestAnimationFrame(function(timestamp) { play(100) })" 
+            <button type="button" onclick="onClickStart(100)" 
                 style="width:100px; margin:20px">Start Game Hard</button>
         </div>
         <div style="display:flex; flex-direction:row">
@@ -21,6 +22,7 @@
     <script>
         const boundary = document.getElementById("boundary");
         const context = boundary.getContext('2d');
+
         const cellSize = 10;
 
         let score = 0;
@@ -44,6 +46,7 @@
         let delta;
 
         let exitAnimation = false;
+        let isPaused = false;
 
         function play(fps) {
 
@@ -51,6 +54,8 @@
             
             // rAF must take additional fps argument to set interval based on difficulty
             requestAnimationFrame(function() { play(fps) });
+
+            if (!isPaused) {
 
             // Slow down the animation
             now = Date.now();
@@ -114,6 +119,7 @@
                 })();
             }
         }
+        }
         
         // Increment the score by one
         function incrementScore() {
@@ -138,7 +144,7 @@
                 return true;
             } else if (snake.x < 0) {
                 return true;
-            } else if (snake.y > boundary.height) {
+            } else if (snake.y >= boundary.height) {
                 return true;
             } else if (snake.y < 0) {
                 return true;
@@ -155,6 +161,20 @@
             }
             return false;
         }
+
+        // Set delay between button click and game starting
+        function onClickStart(difficulty) {
+            getReadyText();
+            setTimeout(function() {
+                requestAnimationFrame(function(timestamp) { play(difficulty) })
+            }, 1500)
+        };
+
+        function getReadyText() {
+            context.font = "30px Arial";
+            context.textAlign = "center";
+            context.fillText("Get Ready", boundary.width/2, boundary.height/2);
+        };
 
         document.addEventListener('keydown', function(e) {
             // <---
@@ -176,6 +196,10 @@
             else if (e.which === 40 && snake.dy === 0) {
                 snake.dy = cellSize;
                 snake.dx = 0;
+            }
+            // P
+            else if (e.which === 80) {
+                isPaused = !isPaused;
             }
         })
     </script>
